@@ -1,19 +1,18 @@
 pipeline{
     agent any
     tools{
-        maven "MAVEN3"
-        jdk "OracleJDK8"
+        maven 'MAVEN3'
+        jdk 'OracleJDK8'
     }
 
     environment{
-
         SNAP_REPO = 'vprofile-snapshot'
         NEXUS_USER = 'admin'
         NEXUS_PASS = 'admin'
         RELEASE_REPO = 'vprofile-release'
         CENTRAL_REPO = 'vpro-maven-central'
         NEXUS_GRP_REPO = 'vpro-maven-group'
-        NEXUSIP = '172.31.13.161'
+        NEXUSIP = '172.31.4.18'
         NEXUSPORT = '8081'
         NEXUS_LOGIN = 'nexuslogin'
         SONARSERVER = 'sonarserver'
@@ -21,35 +20,36 @@ pipeline{
     }
 
     stages{
-        stage('BUILD'){
+        stage('Build'){
             steps{
                 sh 'mvn -s settings.xml -DskipTests install'
             }
-            post{
-                success{
-                    echo "Now Archiving....."
-                    archiveArtifacts artifacts: '**/*.war'
-                }
-            }
-
         }
-        stage('Test'){
+        post{
+            success{
+                echo "Now Archiving......"
+                archiveArtifacts artifacts: '**/*.war'
+            }
+        }
+
+        stage('Unit Test'){
             steps{
                 sh 'mvn -s settings.xml test'
             }
         }
-        stage('checkstyle Analysis'){
+
+        stage('code Analysis'){
             steps{
                 sh 'mvn -s settings.xml checkstyle:checkstyle'
             }
         }
 
-        stage(Sonar Analysis){
+        stage('Sonar Aanlysis'){
             environment{
                 scannerHome = tool "${SONARSERVER}"
             }
             steps{
-                withSonarQubeEnv("${SONARSERVER}") {
+               withSonarQubeEnv("${SONARSERVER}") {
                    sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
                    -Dsonar.projectName=vprofile \
                    -Dsonar.projectVersion=1.0 \
@@ -58,8 +58,9 @@ pipeline{
                    -Dsonar.junit.reportsPath=target/surefire-reports/ \
                    -Dsonar.jacoco.reportsPath=target/jacoco.exec \
                    -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
+               }
             }
+
         }
     }
-
 }
