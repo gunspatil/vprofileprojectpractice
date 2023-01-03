@@ -1,5 +1,5 @@
 FROM openjdk:8 AS BUILD_IMAGE
-RUN sudo apt update && apt install maven -y
+RUN apt update && apt install maven -y
 RUN git clone -b vp-docker https://github.com/gunspatil/Real-Vprofile-Project.git
 RUN cd Real-Vprofile-Project && mvn install
 
