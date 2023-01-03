@@ -7,4 +7,4 @@ FROM tomcat:8-jre11
 RUN rm -rf /usr/local/tomcat/webapps/*
 COPY --from=BUILD_IMAGE Real-Vprofile-Project/target/vprofile-v2.war /usr/local/tomcat/webapps/ROOT.war
 EXPOSE 8080
-COMMAND ["catalina.sh", "run"]
+CMD ["catalina.sh", "run"]
